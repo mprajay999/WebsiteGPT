@@ -1,13 +1,15 @@
 import requests
 import base64
-import openai
+from openai import OpenAI
+import config
+
+client = OpenAI(api_key=config.OPENAI_KEY)
 from prompt import generate_system_prompt
 import streamlit as st
 import re
 import config
 
 OPENAI_KEY = config.OPENAI_KEY
-openai.api_key = OPENAI_KEY
 
 
 
@@ -69,19 +71,19 @@ def define_user_input():
 
     if not st.session_state["html_generated"]:
         user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
-    
+
     elif st.session_state["html_generated"] and not st.session_state["html_finalised"]:
         user_input = st.chat_input(max_chars=500, placeholder="Let me know if you need any changes to the website or ask me to deploy it...")
-    
+
     elif st.session_state["html_finalised"] and st.session_state["domain_requested"] and not st.session_state["domain_available"]:
         user_input = st.chat_input(max_chars=500, placeholder="Please enter a domain name...")
-    
+
     elif st.session_state["domain_requested"] and not st.session_state["domain_available"]:
         user_input = st.chat_input(max_chars=500, placeholder="Please enter a different a domain name...")
 
     elif st.session_state["domain_available"]:
         user_input = st.chat_input(max_chars=500, placeholder="Yes or No")
-    
+
     else:
         user_input = st.chat_input(max_chars=500)
 
@@ -110,13 +112,11 @@ def define_user_input():
 
 
 def generate_responses(template):
-            response = openai.ChatCompletion.create(
-                model="gpt-4o",
-                messages=
-                    [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
-                    + 
-                    [{"role": "system", "content": generate_system_prompt(template)}]
-            )
+            response = client.chat.completions.create(model="gpt-4o",
+            messages=
+                [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
+                + 
+                [{"role": "system", "content": generate_system_prompt(template)}])
             return response
 
 
@@ -144,7 +144,7 @@ def github_push(GITHUB_KEY,html):
         # File exists, get the sha value for replacement
         file_info = response_get.json()
         sha = file_info['sha']
-        
+
         # Prepare the data for the file replacement
         data = {
             "message": commit_message,
@@ -173,12 +173,10 @@ def github_push(GITHUB_KEY,html):
 
 def generate_image(alt_text):
     try:
-        response = openai.Image.create(
-            prompt=alt_text,
-            n=1,
-            size="1024x1024"
-        )
-        return response['data'][0]['url']
+        response = client.images.generate(prompt=alt_text,
+        n=1,
+        size="1024x1024")
+        return response.data[0].url
     except Exception as e:
         print(f"Error generating image for alt text '{alt_text}': {e}")
         return "error-placeholder.png"  # Fallback image URL
@@ -186,23 +184,23 @@ def generate_image(alt_text):
 def replace_images_in_html(html_content):
     # Regex to find all <img> tags with an alt attribute
     img_tag_pattern = r'<img\s+[^>]*alt="([^"]+)"[^>]*>'
-    
+
     image_count = 0  # Counter for the number of images processed
     max_images = 5   # Maximum number of images to generate
-    
+
     # Function to process each match and replace src
     def replace_img_tag(match):
         nonlocal image_count
         if image_count >= max_images:
             return match.group(0)  # Return the original tag unchanged if limit is reached
-        
+
         alt_text = match.group(1)  # Extract the alt text
         new_image_url = generate_image(alt_text)  # Generate a new image URL
         image_count += 1  # Increment the counter
-        
+
         # Replace the old <img> tag with a new one, including the new src
         return re.sub(r'src="[^"]*"', f'src="{new_image_url}"', match.group(0))
-    
+
     # Iterate through matches and apply replacements
     updated_html = re.sub(img_tag_pattern, replace_img_tag, html_content)
     return updated_html

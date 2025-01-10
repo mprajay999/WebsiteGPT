@@ -1,3 +1,4 @@
 config.py
 .venv
 delete.py
+__pycache__

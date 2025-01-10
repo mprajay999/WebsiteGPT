@@ -9,17 +9,16 @@ from openprovider import *
 OPENAI_KEY = config.OPENAI_KEY
 GITHUB_KEY = config.GITHUB_KEY
 OPEN_PROVIDER_KEY = config.OPEN_PROVIDER_KEY
-openai.api_key = OPENAI_KEY
 
 with open("Templates/1.html", "r") as file:
     template = file.read()
 with open("Templates/2.html", "r") as file:
     template2 = file.read()
 
-    
+
 
 def websitegpt_app():
-    
+
     initialize_app()
 
     initialize_session_variables()
@@ -34,10 +33,10 @@ def websitegpt_app():
 
     elif st.session_state["html_generated"] and not st.session_state["html_finalised"]:
         user_input = st.chat_input(max_chars=500, placeholder="Let me know if you need any changes to the website or ask me to deploy it...")
-    
+
     elif st.session_state["html_finalised"] and st.session_state["domain_requested"] and not st.session_state["domain_available"]:
         user_input = st.chat_input(max_chars=500, placeholder="Please enter a domain name...")
-    
+
     elif st.session_state["domain_requested"] and not st.session_state["domain_available"]:
         user_input = st.chat_input(max_chars=500, placeholder="Please enter a different a domain name...")
 
@@ -127,7 +126,7 @@ def websitegpt_app():
                 if 'yes' in user_input.lower():
                     st.session_state["form_toggle"] = True
                     st.session_state.display_messages.append({"role": "assistant", "content": "enter any text to continue"})
-                
+
                 else:
                     st.session_state.display_messages.append({"role": "assistant", "content": "thanks for using websitegpt, hope to see you soon"})
 
