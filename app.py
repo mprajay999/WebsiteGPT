@@ -1,14 +1,20 @@
 import streamlit as st
-import openai
 import re
-import config
+import os
 from prompt import generate_system_prompt
 from utils import *
 from openprovider import *
+from openai import OpenAI
+from dotenv import load_dotenv
 
-OPENAI_KEY = config.OPENAI_KEY
-GITHUB_KEY = config.GITHUB_KEY
-OPEN_PROVIDER_KEY = config.OPEN_PROVIDER_KEY
+
+load_dotenv()
+
+OPENAI_KEY = os.getenv('OPENAI_KEY')
+GITHUB_KEY = os.getenv('GITHUB_KEY')
+OPEN_PROVIDER_KEY = os.getenv('OPEN_PROVIDER_KEY')
+
+client = OpenAI(api_key=OPENAI_KEY)
 
 with open("Templates/1.html", "r") as file:
     template = file.read()
@@ -136,11 +142,20 @@ def websitegpt_app():
 
         elif not st.session_state["html_finalised"]:
             with st.spinner("Generating..."):
-                assistant_response = generate_responses(template).choices[0].message.content
+
+                response = client.chat.completions.create(model="gpt-4o",
+                                                            messages=
+                                                            [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
+                                                            + 
+                                                            [{"role": "system", "content": generate_system_prompt(template)}]
+                                                            )
+
+                assistant_response = response.choices[0].message.content
+
 
                 if "```html" in assistant_response:
                     html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
-                    html_content = replace_images_in_html(html_content)
+                    html_content = replace_images_in_html(html_content,client)
                     st.session_state["html_generated"] = True
                     github_push(GITHUB_KEY, html_content)
 

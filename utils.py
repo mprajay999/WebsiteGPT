@@ -1,16 +1,7 @@
 import requests
 import base64
-from openai import OpenAI
-import config
-
-client = OpenAI(api_key=config.OPENAI_KEY)
-from prompt import generate_system_prompt
 import streamlit as st
 import re
-import config
-
-OPENAI_KEY = config.OPENAI_KEY
-
 
 
 def initialize_app():
@@ -91,37 +82,6 @@ def define_user_input():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def generate_responses(template):
-            response = client.chat.completions.create(model="gpt-4o",
-            messages=
-                [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
-                + 
-                [{"role": "system", "content": generate_system_prompt(template)}])
-            return response
-
-
-
-
 def github_push(GITHUB_KEY,html):
     repo_name = "mprajay999.github.io"
     file_name = "index.html"
@@ -164,38 +124,36 @@ def github_push(GITHUB_KEY,html):
     # Send the PUT request to replace the file
     response = requests.put(url, headers=headers, json=data)
 
-    # # Check if the file was successfully replaced
-    # if response.status_code == 201:
-    #     print("File replaced successfully!")
-    # else:
-    #     print(f"Failed to replace file: {response.status_code}, {response.text}")
 
 
-def generate_image(alt_text):
-    try:
-        response = client.images.generate(prompt=alt_text,
-        n=1,
-        size="1024x1024")
-        return response.data[0].url
-    except Exception as e:
-        print(f"Error generating image for alt text '{alt_text}': {e}")
-        return "error-placeholder.png"  # Fallback image URL
-
-def replace_images_in_html(html_content):
+def replace_images_in_html(html_content,client):
     # Regex to find all <img> tags with an alt attribute
     img_tag_pattern = r'<img\s+[^>]*alt="([^"]+)"[^>]*>'
 
     image_count = 0  # Counter for the number of images processed
     max_images = 5   # Maximum number of images to generate
 
-    # Function to process each match and replace src
+
+    def generate_image(alt_text,client):
+        try:
+            response = client.images.generate(prompt=alt_text,
+            n=1,
+            size="1024x1024")
+            return response.data[0].url
+        except Exception as e:
+            print(f"Error generating image for alt text '{alt_text}': {e}")
+            return "error-placeholder.png"  # Fallback image URL
+        
     def replace_img_tag(match):
         nonlocal image_count
         if image_count >= max_images:
             return match.group(0)  # Return the original tag unchanged if limit is reached
 
         alt_text = match.group(1)  # Extract the alt text
-        new_image_url = generate_image(alt_text)  # Generate a new image URL
+
+
+        new_image_url = generate_image(alt_text,client)  # Generate a new image URL
+
         image_count += 1  # Increment the counter
 
         # Replace the old <img> tag with a new one, including the new src
@@ -204,7 +162,4 @@ def replace_images_in_html(html_content):
     # Iterate through matches and apply replacements
     updated_html = re.sub(img_tag_pattern, replace_img_tag, html_content)
     return updated_html
-
-
-import streamlit as st
 

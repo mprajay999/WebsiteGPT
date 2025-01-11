@@ -1,8 +1,5 @@
 import requests
 import streamlit as st
-import config
-username = "rudrarajur6@gmail.com"
-password = "nN2e4@7Hbz523UH"
 
 def authenticate_user(username, password, ip="0.0.0.0"):
     url = "https://api.openprovider.eu/v1beta/auth/login"
