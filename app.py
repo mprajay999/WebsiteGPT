@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OPENAI_KEY = os.getenv('OPENAI_KEY')
+OPENAI_KEY = os.getenv('OPENAI_API_KEY')
 GITHUB_KEY = os.getenv('GITHUB_KEY')
 OPEN_PROVIDER_KEY = os.getenv('OPEN_PROVIDER_KEY')
 
