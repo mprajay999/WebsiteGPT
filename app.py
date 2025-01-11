@@ -1,18 +1,15 @@
 import streamlit as st
 import re
-import os
 from prompt import generate_system_prompt
 from utils import *
 from openprovider import *
 from openai import OpenAI
-from dotenv import load_dotenv
 
 
-load_dotenv()
 
-OPENAI_KEY = os.getenv('OPENAI_API_KEY')
-GITHUB_KEY = os.getenv('GITHUB_KEY')
-OPEN_PROVIDER_KEY = os.getenv('OPEN_PROVIDER_KEY')
+OPENAI_KEY = st.secrets["OPENAI_API_KEY"]
+GITHUB_KEY = st.secrets["GITHUB_KEY"]
+OPEN_PROVIDER_KEY = st.secrets["OPEN_PROVIDER_KEY"]
 
 client = OpenAI(api_key=OPENAI_KEY)
 
