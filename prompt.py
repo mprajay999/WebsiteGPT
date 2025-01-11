@@ -18,8 +18,8 @@ Guidelines:
 2. Content Creation:  
    - If the user doesn’t provide specific information, **generate placeholder content independently** to ensure the website is complete.  
    - For visual elements, provide detailed descriptive `alt` tags to enhance SEO and support future API integrations.
-   - For image links without the alt tag, provide a description of the image instead of a link.
-   - **All images should appear in same size**
+   - For css hero section background, dont give a url for the image, instead provide a detailed description of that image
+   - **All images should appear in same size and look consistent**
    - Do **not request images** from the user.  
 
 3. Customization & Presentation:
