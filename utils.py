@@ -26,7 +26,7 @@ def initialize_app():
 def initialize_session_variables():
 
     if "html_generated" not in st.session_state:
-        st.session_state["html_generated"] = True
+        st.session_state["html_generated"] = False
     if "domain_requested" not in st.session_state:
         st.session_state["domain_requested"] = False
     if "domain_available" not in st.session_state:
