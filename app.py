@@ -3,6 +3,7 @@ import re
 from prompt import generate_system_prompt
 from utils import *
 from openprovider import *
+from unsplash import *
 from openai import OpenAI
 
 
@@ -10,6 +11,8 @@ from openai import OpenAI
 OPENAI_KEY = st.secrets["OPENAI_API_KEY"]
 GITHUB_KEY = st.secrets["GITHUB_KEY"]
 OPEN_PROVIDER_KEY = st.secrets["OPEN_PROVIDER_KEY"]
+UNSPLASH_API_KEY = st.secrets["UNSPLASH_API_KEY"]
+
 
 client = OpenAI(api_key=OPENAI_KEY)
 
@@ -34,10 +37,10 @@ def websitegpt_app():
     if not st.session_state["html_generated"]:
         user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
 
-    elif st.session_state["html_generated"] and not st.session_state["html_finalised"]:
+    elif st.session_state["html_generated"] and not st.session_state["domain_requested"]:
         user_input = st.chat_input(max_chars=500, placeholder="Let me know if you need any changes to the website or ask me to deploy it...")
 
-    elif st.session_state["html_finalised"] and st.session_state["domain_requested"] and not st.session_state["domain_available"]:
+    elif st.session_state["domain_requested"] and not st.session_state["domain_available"]:
         user_input = st.chat_input(max_chars=500, placeholder="Please enter a domain name...")
 
     elif st.session_state["domain_requested"] and not st.session_state["domain_available"]:
@@ -53,27 +56,31 @@ def websitegpt_app():
 
     if user_input:
 
-
-
         st.chat_message("user").write(user_input)
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.display_messages.append({"role": "user", "content": user_input})
 
 
+        if st.session_state['customer_data_collected']:
+            customer_id = create_customer(OPEN_PROVIDER_KEY,st.session_state['customer_data'])
+            st.session_state["customer_id"]  = customer_id
 
-
-        if 'deploy' in user_input.lower() and st.session_state["html_generated"]:
-            with st.spinner("Finalising..."):
-                st.session_state["html_finalised"] = True
-                st.session_state["domain_requested"] = True
-                st.session_state.display_messages.append(
-                    {"role": "assistant", "content": "Great! Let's deploy your website. Please provide your desired domain name."}
-                )
+            st.session_state.display_messages.append({"role": "assistant", "content": f"your customer id is {customer_id} "})
 
 
 
+        elif  st.session_state["domain_available"] :
+            with st.spinner("Registering the domain..."):
+                if 'yes' in user_input.lower():
 
-        elif st.session_state["domain_requested"] and not st.session_state["domain_available"]:
+                    st.session_state["form_toggle"] = True
+                    st.session_state.display_messages.append({"role": "assistant", "content": "enter any text to continue"})
+
+                else:
+                    st.session_state.display_messages.append({"role": "assistant", "content": "thanks for using websitegpt, hope to see you soon"})
+
+
+        elif st.session_state["domain_requested"]:
             with st.spinner("Checking Availability..."):
                 domain_availability = check_domain_availability(OPEN_PROVIDER_KEY, user_input)
                 if domain_availability:
@@ -87,6 +94,7 @@ def websitegpt_app():
                                 "role": "assistant",
                                 "content": f"The price of **{domain_name}** is {price}. Shall we proceed?"
                             })
+                            st.session_state['domain'] = domain_name
                             st.session_state["domain_available"] = True
                         else:
                             # Handle multiple domains scenario
@@ -115,29 +123,17 @@ def websitegpt_app():
 
 
 
-
-        elif st.session_state['customer_data_collected']:
-            customer_id = create_customer(OPEN_PROVIDER_KEY,st.session_state['customer_data'])
-            st.session_state["customer_id"]  = customer_id
-
-            st.session_state.display_messages.append({"role": "assistant", "content": f"your customer id is {customer_id} "})
-
-
-
-        elif  st.session_state["domain_available"] :
-            with st.spinner("Registering the domain..."):
-                if 'yes' in user_input.lower():
-                    st.session_state["form_toggle"] = True
-                    st.session_state.display_messages.append({"role": "assistant", "content": "enter any text to continue"})
-
-                else:
-                    st.session_state.display_messages.append({"role": "assistant", "content": "thanks for using websitegpt, hope to see you soon"})
+        elif 'deploy' in user_input.lower() and st.session_state["html_generated"]:
+            with st.spinner("Finalising..."):
+                st.session_state["html_finalised"] = True
+                st.session_state["domain_requested"] = True
+                st.session_state.display_messages.append(
+                    {"role": "assistant", "content": "Great! Let's deploy your website. Please provide your desired domain name."}
+                )
 
 
 
-
-
-        elif not st.session_state["html_finalised"]:
+        else:
             with st.spinner("Generating..."):
 
                 response = client.chat.completions.create(model="gpt-4o",
@@ -152,7 +148,7 @@ def websitegpt_app():
 
                 if "```html" in assistant_response:
                     html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
-                    html_content = replace_images_in_html(html_content,client)
+                    html_content = replace_images_in_html(html_content,UNSPLASH_API_KEY)
                     st.session_state["html_generated"] = True
                     github_push(GITHUB_KEY, html_content)
 

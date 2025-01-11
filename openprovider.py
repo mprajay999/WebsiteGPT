@@ -13,7 +13,7 @@ def authenticate_user(username, password, ip="0.0.0.0"):
         if response.status_code == 200:
             data = response.json()
             token = data["data"]["token"]
-            print(f"API Token: {token}")
+            print('new')
             return token
         else:
             error_message = f"Error: {response.status_code}, {response.text}"

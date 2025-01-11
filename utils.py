@@ -26,9 +26,7 @@ def initialize_app():
 def initialize_session_variables():
 
     if "html_generated" not in st.session_state:
-        st.session_state["html_generated"] = False
-    if "html_finalised" not in st.session_state:
-        st.session_state["html_finalised"] = False
+        st.session_state["html_generated"] = True
     if "domain_requested" not in st.session_state:
         st.session_state["domain_requested"] = False
     if "domain_available" not in st.session_state:
@@ -44,6 +42,9 @@ def initialize_session_variables():
 
     if "customer_info" not in st.session_state:
         st.session_state["customer_info"] = False
+    if "domain" not in st.session_state:
+        st.session_state['domain']  = False
+        
 
     if "messages" not in st.session_state:
         st.session_state["messages"] = [
@@ -123,43 +124,3 @@ def github_push(GITHUB_KEY,html):
 
     # Send the PUT request to replace the file
     response = requests.put(url, headers=headers, json=data)
-
-
-
-def replace_images_in_html(html_content,client):
-    # Regex to find all <img> tags with an alt attribute
-    img_tag_pattern = r'<img\s+[^>]*alt="([^"]+)"[^>]*>'
-
-    image_count = 0  # Counter for the number of images processed
-    max_images = 5   # Maximum number of images to generate
-
-
-    def generate_image(alt_text,client):
-        try:
-            response = client.images.generate(prompt=alt_text,
-            n=1,
-            size="1024x1024")
-            return response.data[0].url
-        except Exception as e:
-            print(f"Error generating image for alt text '{alt_text}': {e}")
-            return "error-placeholder.png"  # Fallback image URL
-        
-    def replace_img_tag(match):
-        nonlocal image_count
-        if image_count >= max_images:
-            return match.group(0)  # Return the original tag unchanged if limit is reached
-
-        alt_text = match.group(1)  # Extract the alt text
-
-
-        new_image_url = generate_image(alt_text,client)  # Generate a new image URL
-
-        image_count += 1  # Increment the counter
-
-        # Replace the old <img> tag with a new one, including the new src
-        return re.sub(r'src="[^"]*"', f'src="{new_image_url}"', match.group(0))
-
-    # Iterate through matches and apply replacements
-    updated_html = re.sub(img_tag_pattern, replace_img_tag, html_content)
-    return updated_html
-
