@@ -24,28 +24,6 @@ def websitegpt_app():
 
     initialize_session_variables()
 
-    if "template_info" not in st.session_state:
-        st.session_state["template_info"] = {
-                                                "industry": False,
-                                                "segment" : False
-                                             }
-    
-    if "html" not in st.session_state:
-        st.session_state["html"] = {
-                                                "generated": False
-                                             }
-    if "domain" not in st.session_state:
-        st.session_state["domain"] = {
-                                                "requested": False,
-                                                "available": False,
-                                                "selected": False
-                                             }
-    if "customer" not in st.session_state:
-        st.session_state["customer"] = {
-                                                "info": False
-                                             }
-
-
     display_previous_messages()
 
     if st.session_state["form_toggle"]:
@@ -169,20 +147,15 @@ def websitegpt_app():
             with st.spinner("Registering the domain..."):
                     st.session_state["domain"]["selected"]=user_input
                     st.session_state["form_toggle"] = True
-
+                    st.session_state["customer"]["info"] = True
                     st.session_state.display_messages.append({"role": "assistant", "content": "enter any text to continue"})
-
+                    
 
         elif st.session_state["customer"]["info"]:
-            customer_id = create_customer(OPEN_PROVIDER_KEY,st.session_state['customer_data'])
-            st.session_state["customer_id"]  = customer_id
+            customer_id = create_customer(OPEN_PROVIDER_KEY,st.session_state["customer"]["info"])
+            st.session_state["customer"]["id"]  = customer_id
 
             st.session_state.display_messages.append({"role": "assistant", "content": f"your customer id is {customer_id} "})
-
-
-
-
-
 
 
 

@@ -11,6 +11,20 @@ def initialize_app():
         layout="wide",
         initial_sidebar_state='collapsed',
     )
+
+    st.markdown(
+    """
+        <style>
+            * {
+            overflow-anchor: none !important;
+            }
+        </style>
+    """,
+    unsafe_allow_html=True
+        )
+    
+
+
     st.title("Let’s bring your business to life!")
     st.markdown("""
                 WebsiteGPT is your AI-powered assistant to create and deploy stunning websites effortlessly. 🚀
@@ -30,7 +44,27 @@ def initialize_session_variables():
     if "form_toggle" not in st.session_state:
         st.session_state["form_toggle"] = False
 
-        
+    if "template_info" not in st.session_state:
+        st.session_state["template_info"] = {
+                                                "industry": False,
+                                                "segment" : False
+                                             }
+    
+    if "html" not in st.session_state:
+        st.session_state["html"] = {
+                                                "generated": False
+                                             }
+    if "domain" not in st.session_state:
+        st.session_state["domain"] = {
+                                                "requested": False,
+                                                "available": False,
+                                                "selected": False
+                                             }
+    if "customer" not in st.session_state:
+        st.session_state["customer"] = {
+                                                "info": False,
+                                                "id": False,
+                                             }
 
     if "messages" not in st.session_state:
         st.session_state["messages"] = [
@@ -44,27 +78,6 @@ def initialize_session_variables():
 def display_previous_messages():
         for msg in st.session_state.display_messages:
             st.chat_message(msg["role"]).write(msg["content"])
-
-def define_user_input():
-
-    if not st.session_state["html_generated"]:
-        user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
-
-    elif st.session_state["html_generated"] and not st.session_state["html_finalised"]:
-        user_input = st.chat_input(max_chars=500, placeholder="Let me know if you need any changes to the website or ask me to deploy it...")
-
-    elif st.session_state["html_finalised"] and st.session_state["domain_requested"] and not st.session_state["domain_available"]:
-        user_input = st.chat_input(max_chars=500, placeholder="Please enter a domain name...")
-
-    elif st.session_state["domain_requested"] and not st.session_state["domain_available"]:
-        user_input = st.chat_input(max_chars=500, placeholder="Please enter a different a domain name...")
-
-    elif st.session_state["domain_available"]:
-        user_input = st.chat_input(max_chars=500, placeholder="Yes or No")
-
-    else:
-        user_input = st.chat_input(max_chars=500)
-
 
 
 
