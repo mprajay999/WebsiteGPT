@@ -63,7 +63,7 @@ def replace_images_in_html(html_content, client, api_key):
         image_counter["count"] += 1  # Increment image count
 
         if image_counter["count"] <= 5:
-            new_image_url = generate_image(original_url)  # Use OpenAI for first 5 images
+            new_image_url = generate_image('this image will serve as a background for a website, it should be aesthetic '+ original_url)  # Use OpenAI for first 5 images
         else:
             new_image_url = get_unsplash_photo(original_url)  # Use Unsplash for the rest
 
