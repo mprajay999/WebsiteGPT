@@ -115,9 +115,8 @@ def get_customer_details():
                             "email": email
                         }
         
-            st.session_state["customer_data"] = customer_data
+            st.session_state["customer"]["info"] = customer_data
             st.session_state["form_toggle"] = False
-            st.session_state["customer_data_collected"] = True
             st.success(f"Please close this window to proceed")
 
 

@@ -14,6 +14,7 @@ def initialize_app():
     st.title("Let’s bring your business to life!")
     st.markdown("""
                 WebsiteGPT is your AI-powered assistant to create and deploy stunning websites effortlessly. 🚀
+                
                 """)
     with st.sidebar:
         st.markdown('<center><h1>WebsiteGPT</h1></center>', unsafe_allow_html=True)
@@ -25,34 +26,19 @@ def initialize_app():
 
 def initialize_session_variables():
 
-    if "html_generated" not in st.session_state:
-        st.session_state["html_generated"] = False
-    if "domain_requested" not in st.session_state:
-        st.session_state["domain_requested"] = False
-    if "domain_available" not in st.session_state:
-        st.session_state["domain_available"] = False
-    if "domain_selected" not in st.session_state:
-        st.session_state["domain_selected"] = False
-    if "customer_data_collected" not in st.session_state:
-        st.session_state["customer_data_collected"] = False
-
 
     if "form_toggle" not in st.session_state:
         st.session_state["form_toggle"] = False
 
-    if "customer_info" not in st.session_state:
-        st.session_state["customer_info"] = False
-    if "domain" not in st.session_state:
-        st.session_state['domain']  = False
         
 
     if "messages" not in st.session_state:
         st.session_state["messages"] = [
-            {"role": "assistant", "content": "Hello! let's create a website together."}
+            {"role": "assistant", "content": "Hello! let's create a website together, Can you please let me know the industry your business is in?"}
         ]
     if "display_messages" not in st.session_state:
         st.session_state["display_messages"] = [
-            {"role": "assistant", "content": "Hello! let's create a website together."}
+            {"role": "assistant", "content": "Hello! let's create a website together, Can you please let me know the industry your business is in?"}
         ]
 
 def display_previous_messages():
