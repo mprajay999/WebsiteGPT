@@ -65,7 +65,7 @@ def websitegpt_app():
         st.session_state.display_messages.append({"role": "user", "content": user_input})
 
 
-        if not st.session_state["template_info"]["sub category"]:  
+        if not st.session_state["template_info"]["sub_category"]:  
             st.session_state.display_messages.append({"role": "assistant", "content": "Please select your sub category"})
             st.session_state.messages.append({"role": "assistant", "content": "Please select your sub category"})
 
