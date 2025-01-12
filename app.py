@@ -85,7 +85,7 @@ def websitegpt_app():
 
                 if "```html" in assistant_response:
                     html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
-                    html_content = replace_images_in_html(html_content,UNSPLASH_API_KEY)
+                    html_content = replace_images_in_html(html_content,client,UNSPLASH_API_KEY)
                     
                     github_push(GITHUB_KEY, html_content)
 
