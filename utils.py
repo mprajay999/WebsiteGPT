@@ -47,7 +47,7 @@ def initialize_session_variables():
     if "template_info" not in st.session_state:
         st.session_state["template_info"] = {
                                                 "industry": False,
-                                                "segment" : False
+                                                "sub_category" : False
                                              }
     
     if "html" not in st.session_state:

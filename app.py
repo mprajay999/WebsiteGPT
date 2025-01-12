@@ -35,10 +35,10 @@ def websitegpt_app():
         user_input = st.pills("industry", options, selection_mode="single",label_visibility = 'hidden')
         st.session_state["template_info"]["industry"] = user_input 
 
-    elif not st.session_state["template_info"]['segment']:
-        options = ["Indian Cuisine"]
-        user_input = st.pills("segment", options, selection_mode="single",label_visibility = 'hidden')
-        st.session_state["template_info"]["segment"] = user_input   
+    elif not st.session_state["template_info"]['sub_category']:
+        options = ["Indian","Italian","American","Chinese","Korean"]
+        user_input = st.pills("sub category", options, selection_mode="single",label_visibility = 'hidden')
+        st.session_state["template_info"]["sub_category"] = user_input   
 
     elif not st.session_state["html"]["generated"]:
         user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
@@ -65,9 +65,9 @@ def websitegpt_app():
         st.session_state.display_messages.append({"role": "user", "content": user_input})
 
 
-        if not st.session_state["template_info"]["segment"]:  
-            st.session_state.display_messages.append({"role": "assistant", "content": "Please select your segment"})
-            st.session_state.messages.append({"role": "assistant", "content": "Please select your segment"})
+        if not st.session_state["template_info"]["sub category"]:  
+            st.session_state.display_messages.append({"role": "assistant", "content": "Please select your sub category"})
+            st.session_state.messages.append({"role": "assistant", "content": "Please select your sub category"})
 
 
         elif not st.session_state["html"]["generated"]:
