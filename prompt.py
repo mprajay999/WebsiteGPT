@@ -35,5 +35,6 @@ Most Important Guidelines -
 - all images in a section should have same size
 Your goal is to make the process seamless and efficient, resulting in a high-quality, professional website tailored to the user's needs.  
 - ask only one question at a time, dont make the user feel overwhelmed
+- please include chatbot if it is present in the template
     """
     return system_prompt

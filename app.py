@@ -15,7 +15,9 @@ UNSPLASH_API_KEY = st.secrets["UNSPLASH_API_KEY"]
 client = OpenAI(api_key=OPENAI_KEY)
 
 with open("Templates/1.html", "r") as file:
-    template = file.read()
+    template1 = file.read()
+with open("Templates/2.html", "r") as file:
+    template2 = file.read()
 
 
 def websitegpt_app():
@@ -31,14 +33,25 @@ def websitegpt_app():
 
 
     if not st.session_state["template_info"]["industry"]:
-        options = ["Restaurant"]
+        options = ["Restaurant",'Other Business']
         user_input = st.pills("industry", options, selection_mode="single",label_visibility = 'hidden')
         st.session_state["template_info"]["industry"] = user_input 
 
+        if st.session_state["template_info"]["industry"] =='Restaurant':
+            st.session_state["template_info"]["template"] = template1
+        else:
+            st.session_state["template_info"]["template"] = template2
+       
+
+
     elif not st.session_state["template_info"]['sub_category']:
-        options = ["Indian","Italian","American","Chinese","Korean"]
+        if st.session_state["template_info"]["industry"] == 'Restaurant':
+            options = ["Indian","Italian","American","Chinese","Korean"]
+        else:
+            options=["IT Consulting"]
         user_input = st.pills("sub category", options, selection_mode="single",label_visibility = 'hidden')
-        st.session_state["template_info"]["sub_category"] = user_input   
+        st.session_state["template_info"]["sub_category"] = user_input  
+
 
     elif not st.session_state["html"]["generated"]:
         user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
@@ -68,22 +81,24 @@ def websitegpt_app():
             st.session_state.display_messages.append({"role": "assistant", "content": "Please select your sub category"})
             st.session_state.messages.append({"role": "assistant", "content": "Please select your sub category"})  
 
-        elif not st.session_state["html"]["generated"]:
 
+
+        elif not st.session_state["html"]["generated"]:
             with st.spinner("Generating..."):
 
                 response = client.chat.completions.create(model="gpt-4o",
                                                             messages=
                                                             [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
                                                             + 
-                                                            [{"role": "system", "content": generate_system_prompt(template)}]
+                                                            [{"role": "system", "content": generate_system_prompt(st.session_state["template_info"]["template"])}]
                                                             )
 
                 assistant_response = response.choices[0].message.content
             
 
-            with st.spinner("Creating Preview..."):
-                if "```html" in assistant_response:
+            
+            if "```html" in assistant_response:
+                with st.spinner("Creating Preview..."):
                     html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
                     html_content = replace_images_in_html(html_content,client,UNSPLASH_API_KEY)
                     
@@ -94,13 +109,13 @@ def websitegpt_app():
                     time.sleep(30)
 
                     st.session_state.display_messages.append(
-                        {"role": "assistant", "content": f"Your website is ready! Check it out [here]({github_url}). Let me know if you need any changes or ask me to deploy it"}
-                    )
+                            {"role": "assistant", "content": f"Your website is ready! Check it out [here]({github_url}). Let me know if you need any changes or ask me to deploy it"}
+                        )
 
                     st.session_state["html"]["generated"] = html_content
-                else:
-                    st.session_state.messages.append({"role": "assistant", "content": assistant_response})
-                    st.session_state.display_messages.append({"role": "assistant", "content": assistant_response})
+            else:
+                st.session_state.messages.append({"role": "assistant", "content": assistant_response})
+                st.session_state.display_messages.append({"role": "assistant", "content": assistant_response})
 
 
 
@@ -114,6 +129,7 @@ def websitegpt_app():
 
         elif not st.session_state["domain"]["available"]:
             with st.spinner("Checking Availability..."):
+
                 domain_availability = check_domain_availability(OPEN_PROVIDER_KEY, user_input)
                 if domain_availability:
                     available_domains = [domain for domain in domain_availability if domain[1] == 'free']
