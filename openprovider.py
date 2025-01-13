@@ -58,7 +58,7 @@ def check_domains_availability(auth_token, domains, with_price=True, batch_size=
         except requests.exceptions.HTTPError as http_err:
             print(f"HTTP error occurred: {http_err} - {response.text}")
         except requests.exceptions.RequestException as req_err:
-            print(f"Request error occurred: {req_err}")
+            print(f"Request error occurred- {req_err}")
 
     return available_domains
 
@@ -201,5 +201,3 @@ def register_domain(api_token, owner_handle, admin_handle, tech_handle, domain_n
             "error": f"Error: {response.status_code} - {response.text}"
         }
 
-
-#print(authenticate_user("rudrarajur6@gmail.com","nN2e4@7Hbz523UH"))
