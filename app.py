@@ -23,7 +23,7 @@ def websitegpt_app():
     initialize_app()
 
     initialize_session_variables()
-
+    
     display_previous_messages()
 
     if st.session_state["form_toggle"]:
@@ -60,15 +60,13 @@ def websitegpt_app():
 
     if user_input:        
 
-        st.chat_message("user").write(user_input)
+        st.chat_message("user",avatar="👤").write(user_input)
         st.session_state.messages.append({"role": "user", "content": user_input}) 
         st.session_state.display_messages.append({"role": "user", "content": user_input})
 
-
         if not st.session_state["template_info"]["sub_category"]:  
             st.session_state.display_messages.append({"role": "assistant", "content": "Please select your sub category"})
-            st.session_state.messages.append({"role": "assistant", "content": "Please select your sub category"})
-
+            st.session_state.messages.append({"role": "assistant", "content": "Please select your sub category"})  
 
         elif not st.session_state["html"]["generated"]:
 
@@ -82,7 +80,9 @@ def websitegpt_app():
                                                             )
 
                 assistant_response = response.choices[0].message.content
+            
 
+            with st.spinner("Creating Preview..."):
                 if "```html" in assistant_response:
                     html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
                     html_content = replace_images_in_html(html_content,client,UNSPLASH_API_KEY)
@@ -90,6 +90,9 @@ def websitegpt_app():
                     github_push(GITHUB_KEY, html_content)
 
                     github_url = "https://mprajay999.github.io/"
+
+                    time.sleep(30)
+
                     st.session_state.display_messages.append(
                         {"role": "assistant", "content": f"Your website is ready! Check it out [here]({github_url}). Let me know if you need any changes or ask me to deploy it"}
                     )

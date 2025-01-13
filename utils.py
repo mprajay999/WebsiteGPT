@@ -8,21 +8,10 @@ def initialize_app():
     st.set_page_config(
         page_title='WebsiteGPT',
         page_icon='🤖',
-        layout="wide",
+        #layout="wide",
         initial_sidebar_state='collapsed',
     )
 
-    st.markdown(
-    """
-        <style>
-            * {
-            overflow-anchor: none !important;
-            }
-        </style>
-    """,
-    unsafe_allow_html=True
-        )
-    
 
 
     st.title("Let’s bring your business to life!")
@@ -43,6 +32,9 @@ def initialize_session_variables():
 
     if "form_toggle" not in st.session_state:
         st.session_state["form_toggle"] = False
+
+    if "assistant_last_message" not in st.session_state:
+        st.session_state["assistant_last_message"] = False
 
     if "template_info" not in st.session_state:
         st.session_state["template_info"] = {
@@ -75,9 +67,33 @@ def initialize_session_variables():
             {"role": "assistant", "content": "Hello! let's create a website together, Can you please let me know the industry your business is in?"}
         ]
 
+import time
+
 def display_previous_messages():
-        for msg in st.session_state.display_messages:
-            st.chat_message(msg["role"]).write(msg["content"])
+    # Display all previous messages normally (except the last one)
+    #print(st.session_state.display_messages)
+    for msg in st.session_state.display_messages[:-1]:  # Exclude the last message for streaming
+        if msg["role"] =='assistant':
+            st.chat_message(msg["role"],avatar="🤖").write(msg["content"])
+        else:
+            st.chat_message(msg["role"],avatar="👤").write(msg["content"])
+
+    # Stream the last assistant message with a delay (ensure it's displayed as "assistant")
+    def stream_last_assistant_message():
+        last_assistant_message = st.session_state.display_messages[-1]  # Directly access the last message
+        if last_assistant_message["role"] == "assistant" and st.session_state["assistant_last_message"] !=last_assistant_message :
+            # Split the message content into words
+            st.session_state["assistant_last_message"] =last_assistant_message
+            words = last_assistant_message["content"].split(" ")
+            for word in words:
+                yield word + " "  # Yield each word with a space
+                time.sleep(0.05)  # Add a slight delay to simulate typing
+
+    # Use st.chat_message("assistant") to ensure the role is set as "assistant"
+    with st.chat_message("assistant",avatar="🤖"):
+        st.write_stream(stream_last_assistant_message)
+
+
 
 
 
