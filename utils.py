@@ -2,7 +2,7 @@ import requests
 import base64
 import streamlit as st
 import re
-
+import streamlit.components.v1 as components
 
 def initialize_app():
     st.set_page_config(
@@ -13,7 +13,6 @@ def initialize_app():
     )
 
 
-
     st.title("Let’s bring your business to life!")
     st.markdown("""
                 WebsiteGPT is your AI-powered assistant to create and deploy stunning websites effortlessly. 🚀
@@ -21,6 +20,7 @@ def initialize_app():
                 """)
     with st.sidebar:
         st.markdown('<center><h1>WebsiteGPT</h1></center>', unsafe_allow_html=True)
+        #components.iframe("https://mprajay999.github.io/")
         st.info("""
                 Welcome to WebsiteGPT! This tool helps you create a website by interacting with an AI assistant. 
                 Simply type your ideas or requirements in the chat, and let the assistant generate the website for you.

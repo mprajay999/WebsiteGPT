@@ -6,6 +6,7 @@ from openprovider import *
 from unsplash import *
 from openai import OpenAI
 
+
 OPENAI_KEY = st.secrets["OPENAI_API_KEY"]
 GITHUB_KEY = st.secrets["GITHUB_KEY"]
 OPEN_PROVIDER_KEY = st.secrets["OPEN_PROVIDER_KEY"]
@@ -99,6 +100,7 @@ def websitegpt_app():
             
             if "```html" in assistant_response:
                 with st.spinner("Creating Preview..."):
+
                     html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
                     html_content = replace_images_in_html(html_content,client,UNSPLASH_API_KEY)
                     
@@ -128,11 +130,21 @@ def websitegpt_app():
                 )
 
         elif not st.session_state["domain"]["available"]:
+            response = client.chat.completions.create(
+                                                        model="gpt-4o",  # Ensure the model name is correct
+                                                        messages=[
+                                                            {"role": "system", "content": "You are helping a customer buy a domain."},
+                                                            {"role": "user", "content": "Return a string for this domain, focusing on .com, .net, .org, .co and its close alternatives to check for availability. You include variations in name and word additions that do not change the overall meaning. The result should be similar to GoDaddy domain search suggestions. Just return the string in CSV, not the variable." + user_input}
+                                                        ]
+                                                    )
+            
+            assistant_response = response.choices[0].message.content.split(',')
+
             with st.spinner("Checking Availability..."):
 
-                domain_availability = check_domain_availability(OPEN_PROVIDER_KEY, user_input)
+                domain_availability = check_domains_availability(OPEN_PROVIDER_KEY, assistant_response)
                 if domain_availability:
-                    available_domains = [domain for domain in domain_availability if domain[1] == 'free']
+                    available_domains = [domain for domain in domain_availability]
 
                     if available_domains:
 

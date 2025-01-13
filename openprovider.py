@@ -13,7 +13,6 @@ def authenticate_user(username, password, ip="0.0.0.0"):
         if response.status_code == 200:
             data = response.json()
             token = data["data"]["token"]
-            print('new')
             return token
         else:
             error_message = f"Error: {response.status_code}, {response.text}"
@@ -24,43 +23,45 @@ def authenticate_user(username, password, ip="0.0.0.0"):
         return str(e)
     
 
-def check_domain_availability(api_token, domain):
+def check_domains_availability(auth_token, domains, with_price=True, batch_size=10):
     url = "https://api.openprovider.eu/v1beta/domains/check"
     headers = {
-        "Authorization": f"Bearer {api_token}",
+        "Authorization": f"Bearer {auth_token}",
         "Content-Type": "application/json"
     }
-    
-    # Prepare the payload
-    if "." in domain:
-        # Single domain with an extension
+    # Split domains into batches
+    batches = [domains[i:i + batch_size] for i in range(0, len(domains), batch_size)]
+    available_domains = []
+
+    for batch in batches:
+        domain_objects = [
+            {"extension": domain.split('.')[-1], "name": '.'.join(domain.split('.')[:-1])}
+            for domain in batch
+        ]
         payload = {
-            "domains": [{"name": domain.split('.')[0], "extension": domain.split('.')[1]}],
-            "with_price": True
-        }
-    else:
-        # No extension provided, check for common extensions
-        default_extensions = ["com", "net", "org", "io", "co"]
-        payload = {
-            "domains": [{"name": domain, "extension": ext} for ext in default_extensions],
-            "with_price": True
+            "domains": domain_objects,
+            "with_price": with_price
         }
 
-    # Make the request
-    response = requests.post(url, json=payload, headers=headers)
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            results = response.json().get("data", {}).get("results", [])
 
-    # Process the response
-    if response.status_code == 200:
-        results = response.json().get("data", {}).get("results", [])
-        availability = []
-        for result in results:
-            domain_name = result.get("domain", "Unknown")
-            status = result.get("status", "Unknown")
-            price = result.get("price", {}).get("product", {}).get("price", "Not available")
-            availability.append((domain_name, status, price))
-        return availability
-    else:
-        return 'error'
+            for result in results:
+                domain = result.get("domain")
+                status = result.get("status")
+                price = result.get("price", {}).get("product", {}).get("price", "N/A")
+                if status == "free":
+                    available_domains.append((domain, status, price))
+
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err} - {response.text}")
+        except requests.exceptions.RequestException as req_err:
+            print(f"Request error occurred: {req_err}")
+
+    return available_domains
+
     
 
 @st.dialog("Get Customer Details")
@@ -200,3 +201,5 @@ def register_domain(api_token, owner_handle, admin_handle, tech_handle, domain_n
             "error": f"Error: {response.status_code} - {response.text}"
         }
 
+
+#print(authenticate_user("rudrarajur6@gmail.com","nN2e4@7Hbz523UH"))
