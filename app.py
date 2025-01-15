@@ -108,7 +108,7 @@ def websitegpt_app():
 
                     github_url = "https://mprajay999.github.io/"
 
-                    time.sleep(30)
+                    time.sleep(40)
 
                     st.session_state.display_messages.append(
                             {"role": "assistant", "content": f"Your website is ready! Check it out [here]({github_url}). Let me know if you need any changes or ask me to deploy it"}
