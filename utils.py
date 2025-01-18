@@ -45,11 +45,11 @@ def initialize_session_variables():
     
     if "html" not in st.session_state:
         st.session_state["html"] = {
-                                                "generated": False
+                                                "generated": False,
+                                                "finalised": False
                                              }
     if "domain" not in st.session_state:
         st.session_state["domain"] = {
-                                                "requested": False,
                                                 "available": False,
                                                 "selected": False
                                              }

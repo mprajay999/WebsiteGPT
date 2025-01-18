@@ -200,4 +200,3 @@ def register_domain(api_token, owner_handle, admin_handle, tech_handle, domain_n
         return {
             "error": f"Error: {response.status_code} - {response.text}"
         }
-

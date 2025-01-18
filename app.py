@@ -47,19 +47,17 @@ def websitegpt_app():
 
     elif not st.session_state["template_info"]['sub_category']:
         if st.session_state["template_info"]["industry"] == 'Restaurant':
-            options = ["Indian","Italian","American","Chinese","Korean"]
+            options = ["Indian","Italian","American","Chinese","Korean","deploy"]
         else:
             options=["IT Consulting"]
         user_input = st.pills("sub category", options, selection_mode="single",label_visibility = 'hidden')
         st.session_state["template_info"]["sub_category"] = user_input  
 
-
     elif not st.session_state["html"]["generated"]:
         user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
 
-    elif not st.session_state["domain"]["requested"]:
-        options = ["Deploy"]
-        user_input = st.pills("Please select from the following options", options, selection_mode="single",label_visibility = 'hidden')
+    elif not st.session_state["html"]["finalised"]:
+        user_input = st.chat_input(max_chars=500, placeholder="Let me know if you need any changes or aks me to deploy it...")
 
     elif not st.session_state["domain"]["available"]:                                                         
         user_input = st.chat_input(max_chars=500, placeholder="Please enter your desired domain name without an extension...")
@@ -72,7 +70,7 @@ def websitegpt_app():
         user_input = st.chat_input(max_chars=500)
 
 
-    if user_input:        
+    if user_input:   
 
         st.chat_message("user",avatar="👤").write(user_input)
         st.session_state.messages.append({"role": "user", "content": user_input}) 
@@ -83,27 +81,25 @@ def websitegpt_app():
             st.session_state.messages.append({"role": "assistant", "content": "Please select your sub category"})  
 
 
-
         elif not st.session_state["html"]["generated"]:
-            with st.spinner("Generating..."):
 
-                response = client.chat.completions.create(model="gpt-4o",
-                                                            messages=
-                                                            [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
-                                                            + 
-                                                            [{"role": "system", "content": generate_system_prompt(st.session_state["template_info"]["template"])}]
-                                                            )
+            with st.spinner('thinking...'):
+                response = client.chat.completions.create(model="o1-preview",
+                                                                messages=
+                                                                [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
+                                                                + 
+                                                                [{"role": "user", "content": generate_system_prompt(st.session_state["template_info"]["template"])}]
+                                                                )
 
                 assistant_response = response.choices[0].message.content
             
-
-            
             if "```html" in assistant_response:
+
                 with st.spinner("Creating Preview..."):
 
                     html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
                     html_content = replace_images_in_html(html_content,client,UNSPLASH_API_KEY)
-                    
+
                     github_push(GITHUB_KEY, html_content)
 
                     github_url = "https://mprajay999.github.io/"
@@ -115,19 +111,52 @@ def websitegpt_app():
                         )
 
                     st.session_state["html"]["generated"] = html_content
+
+                    st.session_state.messages.append({"role": "assistant", "content": assistant_response})
             else:
                 st.session_state.messages.append({"role": "assistant", "content": assistant_response})
                 st.session_state.display_messages.append({"role": "assistant", "content": assistant_response})
 
 
 
-        elif not st.session_state["domain"]["requested"]:
-            with st.spinner("Finalising..."):
-                st.session_state["domain"]["requested"] = True
-                st.session_state.display_messages.append(
-                    {"role": "assistant", "content": "Great! Let's deploy your website. Please provide your desired domain name."}
+        elif not st.session_state["html"]["finalised"]:  
 
-                )
+            if 'deploy' in user_input.lower():
+                st.session_state["html"]["finalised"] = True
+                st.session_state.display_messages.append(
+                        {"role": "assistant", "content": "Great! Let's deploy your website. Please provide your desired domain name."}
+                        )
+            
+            else:
+
+                with st.spinner("thinking..."):
+
+                    response = client.chat.completions.create(model="o1-preview",
+                                                                messages = [{
+                                                                                "role": "user",
+                                                                                "content": f"Make changes to the code; {user_input} ; output full html code ; {st.session_state['html']['generated']}"
+                                                                            }])
+
+                    assistant_response = response.choices[0].message.content
+                    print(assistant_response)
+
+                with st.spinner("Creating Preview..."):
+
+                    html_content = re.findall(r"```html(.*?)```", assistant_response, re.DOTALL)[0]
+
+                    github_push(GITHUB_KEY, html_content)
+                    github_url = "https://mprajay999.github.io/"
+
+                    time.sleep(40)
+
+                    st.session_state.display_messages.append(
+                                {"role": "assistant", "content": f"Your website is ready again! Check it out [here]({github_url}). Let me know if you need any changes or ask me to deploy it"}
+                            )
+
+                    st.session_state["html"]["generated"] = html_content
+
+                    st.session_state.messages.append({"role": "assistant", "content": assistant_response})
+
 
         elif not st.session_state["domain"]["available"]:
             response = client.chat.completions.create(

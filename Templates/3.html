@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Historic Deli - Serving authentic New York sandwiches since 1923.">
+    <meta name="keywords" content="Deli, Sandwiches, New York, Family-Owned, Historic Deli">
+    <title>Historic Deli - Authentic New York Experience</title>
+    <style>
+        :root {
+            --primary: #22c55e;
+            --primary-foreground: #ffffff;
+            --background: #ffffff;
+            --foreground: #0a0a0a;
+            --muted: #f8f8f8;
+            --muted-foreground: #737373;
+            --border: rgba(34, 197, 94, 0.1);
+            --radius: 0.25rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            line-height: 1.5;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--background);
+            border-bottom: 1px solid var(--border);
+            z-index: 50;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 4rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--foreground);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+
+        .hero {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-carousel {
+            position: absolute;
+            inset: 0;
+        }
+
+        .carousel-item {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .carousel-caption {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            z-index: 10;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            max-width: 36rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        /* Added styles for other sections */
+        .section-bordered {
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 4rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--muted-foreground);
+        }
+
+        .specials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card-bordered {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .about-content {
+            align-self: center;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: var(--radius);
+        }
+
+        .review-carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .review-item {
+            min-width: 300px;
+            flex: 0 0 auto; /* Prevent items from stretching */
+        }
+
+        .text-center{
+            text-align: center;
+        }
+
+        .chat-bot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .chat-bot-toggle {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+
+        .chat-bot-window {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .chat-bot-window.hidden {
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ccc;
+            border: none;
+            cursor: pointer;
+        }
+
+        .carousel-dot.active {
+            background-color: var(--primary);
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="#" class="logo">HISTORIC DELI</a>
+                <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="nav-links">
+                    <a href="#" class="nav-link">HOME</a>
+                    <a href="#menu" class="nav-link">MENU</a>
+                    <a href="#reservations" class="nav-link">RESERVATIONS</a>
+                    <button class="btn btn-primary" onclick="handleOrderNow()">ORDER NOW</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="image-carousel">
+            <!-- Carousel items will be inserted here by JavaScript -->
+        </div>
+        <div class="hero-content">
+            <h1>Crafting Memories,<br>One Sandwich at a Time</h1>
+            <p>Family-owned since 1923, serving New York's finest artisanal sandwiches and house-cured meats.</p>
+            <div class="hero-buttons">
+                <a href="#menu" class="btn btn-primary">View Today's Menu</a>
+                <button class="btn btn-outline" onclick="handleOrderNow()">Order Now</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="menu" class="specials section-bordered">
+        <div class="container">
+            <div class="section-header">
+                <h2>Today's Specials</h2>
+                <p>Fresh from our kitchen, made with locally-sourced ingredients</p>
+            </div>
+            <div class="specials-grid">
+                <!-- Special items will be inserted here by JavaScript -->
+            </div>
+            <div class="text-center">
+                <a href="#menu" class="btn btn-outline">See Full Menu</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="about section-bordered">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <h2>A Century of Tradition</h2>
+                    <p>Since 1923, our family has been serving authentic deli favorites using time-honored recipes passed down through generations. Every sandwich tells a story, every bite carries a piece of history.</p>
+                    <p>We take pride in our house-cured meats, hand-crafted condiments, and freshly baked breads. Come taste the difference that tradition makes.</p>
+                    <button class="btn btn-outline border-accent">Our Story</button>
+                </div>
+                <div class="about-image card-bordered">
+                    <img src="https://images.unsplash.com/photo-1577906096429-f73c2c312435" alt="Historic deli counter" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="reviews" class="reviews section-bordered">
+        <div class="container">
+            <h2>Customer Stories</h2>
+            <div class="review-carousel card-bordered">
+                <!-- Review items will be inserted here by JavaScript -->
+            </div>
+            <div class="text-center">
+                <button class="btn btn-outline border-accent" onclick="toggleReviewForm()">Share Your Experience</button>
+                <div id="review-form" class="hidden">
+                    <!-- Review form will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="chat-bot">
+        <button class="chat-bot-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </button>
+        <div class="chat-bot-window hidden">
+            <!-- Chat bot content will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Image carousel functionality
+            const images = [
+                {
+                    url: "https://images.unsplash.com/photo-1428515613728-6b4607e44363",
+                    caption: "Our master chefs at work"
+                },
+                {
+                    url: "https://images.unsplash.com/photo-1466637574441-749b8f19452f",
+                    caption: "Traditional bread making"
+                },
+                {
+                    url: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d",
+                    caption: "House-made pastrami preparation"
+                },
+                {
+                    url: "https://images.unsplash.com/photo-1549590143-d5855148a9d5",
+                    caption: "Fresh ingredients, daily"
+                }
+            ];
+
+            let currentIndex = 0;
+            const carouselContainer = document.querySelector('.image-carousel');
+
+            function renderCarousel() {
+                const image = images[currentIndex];
+                carouselContainer.innerHTML = `
+                    <div class="carousel-item active">
+                        <img src="${image.url}" alt="${image.caption}" loading="lazy">
+                        <div class="carousel-overlay"></div>
+                        <div class="carousel-caption">
+                            <h2>${image.caption}</h2>
+                        </div>
+                    </div>
+                `;
+                renderCarouselControls();
+            }
+
+            function renderCarouselControls() {
+                const dotsContainer = document.createElement('div');
+                dotsContainer.classList.add('carousel-dots');
+                images.forEach((_, idx) => {
+                    const dot = document.createElement('button');
+                    dot.classList.add('carousel-dot');
+                    if (idx === currentIndex) dot.classList.add('active');
+                    dot.addEventListener('click',
