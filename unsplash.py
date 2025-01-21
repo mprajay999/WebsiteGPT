@@ -2,7 +2,6 @@ import openai
 import requests
 import re
 import streamlit as st
-ACCESS_KEY = "SYKUTgHGFtWXIhWrac31F1hcNQPUEX1TebpznT9tW2Q"
 from openai import OpenAI
 
 OPENAI_KEY = st.secrets["OPENAI_API_KEY"]
@@ -10,12 +9,7 @@ GITHUB_KEY = st.secrets["GITHUB_KEY"]
 OPEN_PROVIDER_KEY = st.secrets["OPEN_PROVIDER_KEY"]
 UNSPLASH_API_KEY = st.secrets["UNSPLASH_API_KEY"]
 
-
 client = OpenAI(api_key=OPENAI_KEY)
-
-import re
-import requests
-import openai
 
 def replace_images_in_html(html_content, client, api_key):
     # Regex to find all <img> tags with an alt attribute

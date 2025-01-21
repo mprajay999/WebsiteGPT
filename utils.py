@@ -38,8 +38,6 @@ def initialize_session_variables():
 
     if "template_info" not in st.session_state:
         st.session_state["template_info"] = {
-                                                "industry": False,
-                                                "sub_category" : False,
                                                 "template" : False
                                              }
     
@@ -61,11 +59,12 @@ def initialize_session_variables():
 
     if "messages" not in st.session_state:
         st.session_state["messages"] = [
-            {"role": "assistant", "content": "Hello! let's create a website together, Can you please let me know the industry your business is in?"}
+
+            #{"role": "assistant", "content": "Hello! let's create a website together, Can you please let me know more about your business or the type of website you want to create?"}
         ]
     if "display_messages" not in st.session_state:
         st.session_state["display_messages"] = [
-            {"role": "assistant", "content": "Hello! let's create a website together, Can you please let me know the industry your business is in?"}
+            {"role": "assistant", "content": "Hello! let's create a website together, Can you please let me know more about your business or the type of website you want to create?"}
         ]
 
 import time

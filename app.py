@@ -32,26 +32,11 @@ def websitegpt_app():
     if st.session_state["form_toggle"]:
         get_customer_details()
 
+    print(st.session_state.messages)
+    if not st.session_state["template_info"]["template"]:
+        user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
 
-    if not st.session_state["template_info"]["industry"]:
-        options = ["Restaurant",'Other Business']
-        user_input = st.pills("industry", options, selection_mode="single",label_visibility = 'hidden')
-        st.session_state["template_info"]["industry"] = user_input 
-
-        if st.session_state["template_info"]["industry"] =='Restaurant':
-            st.session_state["template_info"]["template"] = template1
-        else:
-            st.session_state["template_info"]["template"] = template2
-       
-
-
-    elif not st.session_state["template_info"]['sub_category']:
-        if st.session_state["template_info"]["industry"] == 'Restaurant':
-            options = ["Indian","Italian","American","Chinese","Korean","deploy"]
-        else:
-            options=["IT Consulting"]
-        user_input = st.pills("sub category", options, selection_mode="single",label_visibility = 'hidden')
-        st.session_state["template_info"]["sub_category"] = user_input  
+        st.session_state["template_info"]["template"] = template1
 
     elif not st.session_state["html"]["generated"]:
         user_input = st.chat_input(max_chars=500, placeholder="Describe your website")
@@ -73,18 +58,14 @@ def websitegpt_app():
     if user_input:   
 
         st.chat_message("user",avatar="👤").write(user_input)
-        st.session_state.messages.append({"role": "user", "content": user_input}) 
+        if len(st.session_state.messages) != 0:
+            st.session_state.messages.append({"role": "user", "content": user_input}) 
         st.session_state.display_messages.append({"role": "user", "content": user_input})
 
-        if not st.session_state["template_info"]["sub_category"]:  
-            st.session_state.display_messages.append({"role": "assistant", "content": "Please select your sub category"})
-            st.session_state.messages.append({"role": "assistant", "content": "Please select your sub category"})  
-
-
-        elif not st.session_state["html"]["generated"]:
+        if not st.session_state["html"]["generated"]:
 
             with st.spinner('thinking...'):
-                response = client.chat.completions.create(model="o1-preview",
+                response = client.chat.completions.create(model="gpt-4o",
                                                                 messages=
                                                                 [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages] 
                                                                 + 
@@ -131,7 +112,7 @@ def websitegpt_app():
 
                 with st.spinner("thinking..."):
 
-                    response = client.chat.completions.create(model="o1-preview",
+                    response = client.chat.completions.create(model="gpt-4o-mini",
                                                                 messages = [{
                                                                                 "role": "user",
                                                                                 "content": f"Make changes to the code; {user_input} ; output full html code ; {st.session_state['html']['generated']}"
@@ -160,7 +141,7 @@ def websitegpt_app():
 
         elif not st.session_state["domain"]["available"]:
             response = client.chat.completions.create(
-                                                        model="gpt-4o",  # Ensure the model name is correct
+                                                        model="gpt-4o-mini",  # Ensure the model name is correct
                                                         messages=[
                                                             {"role": "system", "content": "You are helping a customer buy a domain."},
                                                             {"role": "user", "content": "Return a string for this domain, focusing on .com, .net, .org, .co and its close alternatives to check for availability. You include variations in name and word additions that do not change the overall meaning. The result should be similar to GoDaddy domain search suggestions. Just return the string in CSV, not the variable." + user_input}
